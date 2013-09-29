@@ -1,0 +1,43 @@
+#!/bin/bash
+
+mem=1gb
+user=`whoami`
+cpus=1
+verbose=0
+
+while [ $# != "0" ];
+do
+		if [ "${1:0:2}" == "-l" ]
+		then
+			shift
+			if [ "${1:0:7}" == "h_vmem=" -o "${1:0:7}" == "s_vmem=" ]
+		    then	
+			   mem=${1:7}
+			fi
+		elif [ "${1:0:6}" == "--mem=" ]
+		then
+		   mem=${1:6}
+		elif [ "$1" == "-m" ]
+		then
+		   shift
+		   mem=$1
+		elif [ "$1" == "-n" ]
+		then
+		   shift
+		   cpus=$1
+		elif [ "$1" == "-v" ]
+		then
+		   verbose=1
+		elif [ "$1" == "-h" ]
+		then
+		   echo usage "$0 [-l h_vmem=<mem>] [-l s_vmem=<mem>] [-m <mem>] [--mem=<mem>] [-n <ncpus>]"
+           exit
+		fi		
+		shift
+done
+
+if [ "$verbose" == "1" ];
+then
+    echo "qsub -I -l mem=$mem -l nodes=1:ppn=$cpus -N QLOGIN"
+fi
+qsub -I -l mem=$mem -l nodes=1:ppn=$cpus -N QLOGIN
