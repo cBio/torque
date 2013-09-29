@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+then
+    /cbio/grlab/share/software/cluster_tools/q-status.torque -alc
+else
+    /cbio/grlab/share/software/cluster_tools/q-status.torque -lc $1
+fi
+
+exit
+if [ "$1" != "-nolic" ]
+then
+	echo "free licenses:"
+	qstat -F ml,sigtb,stattb,opttb,imagetb,compiler,simulink,cplex \
+		| sort -u \
+		| awk '/:.*=/ {print $1}' \
+		| sed 's/^g[cfl]://'
+fi
+
+echo
+#grep currentprice /usr/local/sge/balance

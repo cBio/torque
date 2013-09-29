@@ -1,0 +1,6 @@
+#!/bin/bash
+
+fname=`checkjob -v $1 | grep "OutputFile" | cut -f 3 -d ':' | sed -e "s/.qsubout//g"`
+echo $fname
+tail -f $fname
+
