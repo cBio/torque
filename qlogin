@@ -38,6 +38,6 @@ done
 
 if [ "$verbose" == "1" ];
 then
-    echo "qsub -I -l mem=$mem -l nodes=1:ppn=$cpus,walltime=100000 -N QLOGIN $@"
+    echo "qsub -I -q active -l mem=$mem -l nodes=1:ppn=$cpus,walltime=100000 -N QLOGIN $@"
 fi
-qsub -I -l mem=$mem -l nodes=1:ppn=$cpus,walltime=100000 -N QLOGIN $@
+qsub -I -q active -l mem=$mem -l nodes=1:ppn=$cpus,walltime=100000 -N QLOGIN $@
