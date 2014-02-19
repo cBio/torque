@@ -30,7 +30,8 @@ do
 		   verbose=1
 		elif [ "$1" == "-h" -o "$1" == "--help" ]
 		then
-		   echo usage "$0 [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in torque format>]"
+           echo -e "\nThis script is a wrapper for the submission of an interactive login job.\n" 
+		   echo "Usage: $0 [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in torque format>]"
            exit
 		fi		
 		shift
