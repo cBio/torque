@@ -1,0 +1,58 @@
+This README file describes the set of clustertools that have been developed for
+the convenient interaction with the cluster queues and job outputs.
+
+q-usage
+=================================================
+
+This is one of the most usefull wrappers, as it gives a short overview of the
+current job situation on the cluster. Technically, it is a wrapper for the
+q-status command decribed further below.
+
+Usage: q-usage
+When called without arguments, it provides a summary of the currently running,
+held and queued jobs of all users. If any of the thre categories should be
+empty, no information for this category is displayed.
+
+Usage: q-usage <user>
+When called with a user-ID as argument, the summary is shown for the respective 
+user only. 
+
+
+q-less
+=================================================
+
+This script takes the output-file from a running job and dsiplays it using less.
+If a job has no output file defined or runs interactively, en error will occur:
+For this to work, is required that the output file is directly spooled to the
+designed output location (see torque option -k).
+
+Usage: q-less <job-id>
+
+
+q-tail
+=================================================
+
+This script takes the output-file of a running job and tails its content to the
+screen. It's behavior is equivalent to tail -f <File>. 
+For this to work, is required that the output file is directly spooled to the
+designed output location (see torque option -k).
+
+Usage: q-tail <job-id>
+
+
+qlogin
+=================================================
+
+This is a wrapper script for requesting a node for interactive work using the
+active q. When called without any arguments, it will request a node with
+standard settings (1 cpu, 1gb, 72h). Each of the options can be customized.
+
+Usage: qlogin [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in
+              torque format>] 
+
+q-status
+=================================================
+
+This wrapped gets its information from showq and is mainly used as basis for
+q-usage. For more detailed information, please refer to the help page that can
+be invoked by q-status -h.
