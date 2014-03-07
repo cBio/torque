@@ -19,8 +19,8 @@ debug()
 print_help_and_die()
 {
 	echo "${0##*/}: show cluster rack overview"
-	echo "1st column: node number, 2nd column: load average, 3rd column: jobs/maxjobs"
-	echo "colors are according to load: red (highest), yellow, green, cyan (idle)."
+	echo "1st column: node number, 2nd column: load average, 3rd column: cores, 4th column avail/tot mem"
+	echo "colors are according to cpu load / memory load: red (highest), yellow, green, cyan (idle)."
 	echo "red background means node is powered off or dead"
 	echo "options:"
 	echo "	-h	print help"
@@ -107,7 +107,7 @@ get_load_color()
 	[[ "$avg" -ge $(($maxjobs * 100)) ]] || [[ $(($avail * 100)) -ge $(($tot * 90)) ]] && return
 
 	result="@y" # yellow if loadavg * 2 > number of cores
-	[[ "$(($avg * 2))" -ge "$(($maxjobs * 100))" ]] && return
+	[[ "$(($avg * 2))" -ge "$(($maxjobs * 100))" ]] || [[ $(($avail * 100)) -ge $(($tot * 60)) ]] && return
 
 	result="@g" # green for all others
 }
