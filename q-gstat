@@ -2,10 +2,12 @@
 
 #RACKDEF=/usr/local/sge/q-tools/racks.txt
 RACKDEF=/cbio/grlab/share/software/cluster_tools/racks_sd2.txt
-MAXWIDTH=120
+MAXWIDTH=135
 COLORZ=1
 declare -a slotload
 declare -a loadavg
+declare -a availmem
+declare -a totmem
 declare -a nodenames
 
 debug()
@@ -30,10 +32,10 @@ print_help_and_die()
 get_load()
 {
 
-	local i
+    ### this function calls the systm function to get information about
+    ### the node status and stores it in an internal representation
+	local i j
 
-	#result="$(qstat -f -q all.q | awk '/node/ {
-	#result="$(sinfo -o "%N %n %C %11T %O %.6m %8f %20E" -ehs | sort -u | awk '/^gpu.*$/ {
     result="$(pbsnodes | tr '\n' '@' | sed -e "s/@@/\n/g" | sed -e "s/ = /?/g" | sed -e "s/ *//g" | awk -F "@" '{
         ### read all fields
         for (j = 2; j <= NF; j++) {
@@ -41,7 +43,7 @@ get_load()
             fields[tmp[1]] = tmp[2];
         }
 		if (fields["state"] == "offline" || fields["state"] == "down" || fields["state"] == "down,offline" || fields["state"] == "offline,down") {
-            printf "%s:%s:%s\n", $1, fields["np"], -100
+            printf "%s:%s:%s:0:0\n", $1, fields["np"], -100
         } else {
             split(fields["status"], tmp, ",");
             for (i = 1; i <= length(tmp); i++) {
@@ -51,7 +53,7 @@ get_load()
                     #printf "%s--%s\n", ttmp[1], ttmp[2]
                 }
             }
-            printf "%s:%s:%s\n", $1, fields["np"], stat["loadave"] * 100
+            printf "%s:%s:%s:%s:%s\n", $1, fields["np"], stat["loadave"] * 100, stat["availmem"], stat["physmem"]
         }
 	}')"
 	if [[ $? -ne 0 ]]; then
@@ -63,6 +65,10 @@ get_load()
 		local n=$(echo $(expr match "$i" '\([^:]*\)') | sed -e "s/[^0-9]/1/g")
         slotload[$n]="$(echo $i | cut -f 2 -d ':')"
         loadavg[$n]="$(echo $i | cut -f 3 -d ':')"
+        tmp="$(echo $i | cut -f 4 -d ':')"
+        availmem[$n]="$((${tmp%kb}/1024/1024))"
+        tmp="$(echo $i | cut -f 5 -d ':')"
+        totmem[$n]="$((${tmp%kb}/1024/1024))"
         nodenames[$n]="$(echo $i | cut -f 1 -d ':')"
 	done
 }
@@ -70,7 +76,7 @@ get_load()
 # $1: node number
 get_maxjobs()
 {
-	result="${slotload[$1]##*/}"
+	result="${slotload[$1]##*/}"  # get last entry c of a/b/c
 	ret=0
 	[[ -n "$result" ]] && return
 	result="failed to get maxjobs of node $1"
@@ -84,6 +90,8 @@ get_load_color()
 {
 	local maxjobs nodenum="$1"
 	local avg="${loadavg[$nodenum]}"
+    local tot="${totmem[$nodenum]}"
+    local avail="${availmem[$nodenum]}"
 
 	result="@d"
 	[[ "$avg" -lt 0 ]] && return
@@ -96,7 +104,7 @@ get_load_color()
 	maxjobs="$result"
 
 	result="@r" # red for nodes with loadavg higher than number of cores
-	[[ "$avg" -ge $(($maxjobs * 100)) ]] && return
+	[[ "$avg" -ge $(($maxjobs * 100)) ]] || [[ $(($avail * 100)) -ge $(($tot * 90)) ]] && return
 
 	result="@y" # yellow if loadavg * 2 > number of cores
 	[[ "$(($avg * 2))" -ge "$(($maxjobs * 100))" ]] && return
@@ -129,7 +137,8 @@ rack_contents()
 		echo "failed to parse $RACKDEF for node numbers of rack #$1"
 		exit 1
 	fi
-	for nn in $nodes; do
+	for nn in $nodes
+    do
         n=$(echo $(expr match "$nn" '\([^:]*\)') | sed -e "s/[^0-9]/1/g")
 
 		local color maxjobs percent load space="    " space1 space2
@@ -144,6 +153,7 @@ rack_contents()
 
 		percent="$((${loadavg[$n]} / $maxjobs))"
 		debug "node $n: load: ${loadavg[$n]}, maxjobs: $maxjobs, percent: $percent %"
+        space0=${space:1:$((9-${#nodenames[$n]}))}
 		if [[ "$percent" -lt 0 ]]; then
 			percent="-NA-"
 			space1=""
@@ -156,8 +166,19 @@ rack_contents()
 		load="${slotload[$n]}"
 		space2="${space:1:$((70 - ${#load}))}"
 
+        tot="${totmem[$n]}"
+        avail="${availmem[$n]}"
+
+        if [ "$tot" -gt 0 ]
+        then
+            perc="$((${avail}*100/${tot}))%"
+        else
+            perc="0%"
+        fi
+        space3="  "
+
 		# the last @s is important for color mode (reset)
-		content="$content$color${nodenames[$n]} $space1$percent $space2${load}@s
+		content="$content$color$space0${nodenames[$n]} $space1$percent $space2${load} ${space3}${avail}/${tot}gb (${perc}) @s
 "
 	done
 	result="$content"
@@ -167,12 +188,15 @@ prck()
 {
 	rack_contents "$1"
 	result="
-RACK $1 (CPUS: alloc/idl/oth/tot)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RACK $1     load   cpus   memory usage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $result
 "
 }
 
+
+##### MAIN PROGRAM CALL ######
+##############################
 while getopts "nhc:" flag; do
 	case "$flag" in
 	n) COLORZ=0; continue;;
