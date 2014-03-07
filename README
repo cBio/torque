@@ -53,6 +53,13 @@ Usage: qlogin [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in
 q-status
 =================================================
 
-This wrapped gets its information from showq and is mainly used as basis for
+This wrapper gets its information from showq and is mainly used as basis for
 q-usage. For more detailed information, please refer to the help page that can
 be invoked by q-status -h.
+
+
+q-gstat
+=================================================
+This is formatting wrapper around pbsnodes, summarizing cpu load and memory
+load of all available nodes. Help page is available via q-gstat -h. Ran without
+arguments it shows the standard overview of the cluster state.
