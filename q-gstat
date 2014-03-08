@@ -6,7 +6,7 @@ MAXWIDTH=135
 COLORZ=1
 declare -a slotload
 declare -a loadavg
-declare -a availmem
+declare -a usedmem
 declare -a totmem
 declare -a nodenames
 
@@ -19,7 +19,7 @@ debug()
 print_help_and_die()
 {
 	echo "${0##*/}: show cluster rack overview"
-	echo "1st column: node number, 2nd column: load average, 3rd column: cores, 4th column avail/tot mem"
+	echo "1st column: node number, 2nd column: load average, 3rd column: cores, 4th column used/tot mem"
 	echo "colors are according to cpu load / memory load: red (highest), yellow, green, cyan (idle)."
 	echo "red background means node is powered off or dead"
 	echo "options:"
@@ -65,10 +65,11 @@ get_load()
 		local n=$(echo $(expr match "$i" '\([^:]*\)') | sed -e "s/[^0-9]/1/g")
         slotload[$n]="$(echo $i | cut -f 2 -d ':')"
         loadavg[$n]="$(echo $i | cut -f 3 -d ':')"
-        tmp="$(echo $i | cut -f 4 -d ':')"
-        availmem[$n]="$((${tmp%kb}/1024/1024))"
         tmp="$(echo $i | cut -f 5 -d ':')"
         totmem[$n]="$((${tmp%kb}/1024/1024))"
+        tmp="$(echo $i | cut -f 4 -d ':')"
+        tmp="$((${tmp%kb}/1024/1024))"
+        usedmem[$n]=$((${totmem[$n]} - $tmp))
         nodenames[$n]="$(echo $i | cut -f 1 -d ':')"
 	done
 }
@@ -91,7 +92,7 @@ get_load_color()
 	local maxjobs nodenum="$1"
 	local avg="${loadavg[$nodenum]}"
     local tot="${totmem[$nodenum]}"
-    local avail="${availmem[$nodenum]}"
+    local used="${usedmem[$nodenum]}"
 
 	result="@d"
 	[[ "$avg" -lt 0 ]] && return
@@ -104,10 +105,10 @@ get_load_color()
 	maxjobs="$result"
 
 	result="@r" # red for nodes with loadavg higher than number of cores
-	[[ "$avg" -ge $(($maxjobs * 100)) ]] || [[ $(($avail * 100)) -ge $(($tot * 90)) ]] && return
+	[[ "$avg" -ge $(($maxjobs * 100)) ]] || [[ $(($used * 100)) -ge $(($tot * 90)) ]] && return
 
 	result="@y" # yellow if loadavg * 2 > number of cores
-	[[ "$(($avg * 2))" -ge "$(($maxjobs * 100))" ]] || [[ $(($avail * 100)) -ge $(($tot * 60)) ]] && return
+	[[ "$(($avg * 2))" -ge "$(($maxjobs * 100))" ]] || [[ $(($used * 100)) -ge $(($tot * 60)) ]] && return
 
 	result="@g" # green for all others
 }
@@ -167,18 +168,18 @@ rack_contents()
 		space2="${space:1:$((70 - ${#load}))}"
 
         tot="${totmem[$n]}"
-        avail="${availmem[$n]}"
+        used="${usedmem[$n]}"
 
         if [ "$tot" -gt 0 ]
         then
-            perc="$((${avail}*100/${tot}))%"
+            perc="$((${used}*100/${tot}))%"
         else
             perc="0%"
         fi
         space3="  "
 
 		# the last @s is important for color mode (reset)
-		content="$content$color$space0${nodenames[$n]} $space1$percent $space2${load} ${space3}${avail}/${tot}gb (${perc}) @s
+		content="$content$color$space0${nodenames[$n]} $space1$percent $space2${load} ${space3}${used}/${tot}gb (${perc}) @s
 "
 	done
 	result="$content"
