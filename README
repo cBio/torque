@@ -69,5 +69,6 @@ q-user
 =================================================
 A wrapper of q-stat that gives an overview of which user has how many jobs running
 on which node. Help available via -h. Run without arguments it shows how many jobs 
-the invoking user is running.
+the invoking user is running. To display information for all users, use 'all' instead
+of user name.
 
