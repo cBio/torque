@@ -61,5 +61,13 @@ be invoked by q-status -h.
 q-gstat
 =================================================
 This is formatting wrapper around pbsnodes, summarizing cpu load and memory
-load of all available nodes. Help page is available via q-gstat -h. Ran without
+load of all available nodes. Help page is available via q-gstat -h. Run without
 arguments it shows the standard overview of the cluster state.
+
+
+q-user
+=================================================
+A wrapper of q-stat that gives an overview of which user has how many jobs running
+on which node. Help available via -h. Run without arguments it shows how many jobs 
+the invoking user is running.
+

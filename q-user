@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# (@) Andre Kahles 2013
+
+set -e
+
+usage() {
+    echo "$0 [<user> -n]"
+    echo "-n  show which nodes"
+    exit 1
+}
+
+
+if [ "$1" == "-h" -o "$1" == "--help" ]
+then
+    usage
+fi
+
+if [ -z "$1" ]
+then
+    user="$(whoami)"
+else
+    if [ "$1" == "-n" ]
+    then
+        user="$(whoami)"
+        nodes=1
+    else
+        user="$1"
+    fi
+fi
+
+if [ "$2" == "-n" ]
+then
+    nodes=1
+fi
+
+if [ "$user" == "all" ]
+then
+    users=$(qstat | grep -w R | sed -e "s/  */ /g" | cut -f 3 -d ' ' | sort -u)
+else
+    users=$user
+fi
+
+for user in $users
+do
+    if [ "$nodes" == "1" ]
+    then
+        running="$(qstat -t -u $user -n | grep -A 1 -w R | grep -e "^ " | cut -f 1 -d '/' | sort | uniq -c)"
+    else
+        running="$(qstat -t -u $user -n | grep -A 1 -w R | grep -e "^ " | wc -l)"
+    fi
+
+    echo -e "\njobs of user ${user}"
+    if [ -z "$running" ]
+    then
+        echo -e "\t0"
+    else
+        echo -e "$running"
+    fi
+done
