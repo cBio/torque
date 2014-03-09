@@ -2,9 +2,9 @@
 
 if [ -z "$1" ]
 then
-    /cbio/grlab/share/software/cluster_tools/q-status.torque -alc
+    /cbio/grlab/share/software/cluster_tools/q-status -alc
 else
-    /cbio/grlab/share/software/cluster_tools/q-status.torque -lc $1
+    /cbio/grlab/share/software/cluster_tools/q-status -lc $1
 fi
 
 exit
