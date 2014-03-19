@@ -185,7 +185,7 @@ print_jobs() {
                                    jobname=""
                                    owner=$2
                                    procs=$4
-                                   starttime="$5-$6-$7-$8"
+                                   starttime=$5"-"$6"-"$7"-"$8
 
                                    if (running_in_column=="machine")
                                        { masternode=$7 }
@@ -360,7 +360,13 @@ if [ -n "$CMDOPT_G" -a -z "$listuser" ] ; then
 fi
 
 #squeue='squeue -o "%i=%j=%C=%u=%T=%S" | grep -e "$myuser"'
-squeue='showq | grep -e "$myuser" | sed -e "s/  */=/g"'
+if [ "$(hostname)" == "mskcc-ln1.local" ]
+then
+    squeue='showq | grep -e "$myuser" | sed -e "s/  */=/g"'
+else
+    squeue='ssh mskcc-ln1 "/opt/moab/bin/showq | grep -e \"$myuser\" | sed -e \"s/  */=/g\""'
+fi
+
 if [ -n "$CMDOPT_M" ]; then
 	running_in_column="machine"
 else
