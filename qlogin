@@ -4,6 +4,8 @@ mem=1gb
 user=`whoami`
 cpus=1
 verbose=0
+time='72:00:00'
+x11forward=
 
 while [ $# != "0" ];
 do
@@ -17,10 +19,18 @@ do
 		if [ "${1:0:6}" == "--mem=" ]
 		then
 		   mem=${1:6}
+		elif [ "$1" == "-t" ]
+		then
+		   shift
+		   time=$1
 		elif [ "$1" == "-m" ]
 		then
 		   shift
 		   mem=$1
+		elif [ "$1" == "-X" ]
+		then
+		   shift
+		   x11forward="-X"
 		elif [ "$1" == "-n" ]
 		then
 		   shift
@@ -30,7 +40,7 @@ do
 		   verbose=1
 		elif [ "$1" == "-h" -o "$1" == "--help" ]
 		then
-		   echo usage "$0 [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in torque format>]"
+		   echo usage "$0 [-t <time>] [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in torque format>]"
            exit
 		fi		
 		shift
@@ -38,6 +48,6 @@ done
 
 if [ "$verbose" == "1" ];
 then
-    echo "qsub -I -l mem=$mem -l nodes=1:ppn=$cpus,walltime=72:00:00 -N QLOGIN -q active $@"
+    echo "qsub -I $x11forward -l mem=$mem -l nodes=1:ppn=$cpus,walltime=$time -N QLOGIN -q active $@"
 fi
-qsub -I -l mem=$mem -l nodes=1:ppn=$cpus,walltime=72:00:00 -N QLOGIN -q active $@
+qsub -I $x11forward -l mem=$mem -l nodes=1:ppn=$cpus,walltime=$time -N QLOGIN -q active $@
