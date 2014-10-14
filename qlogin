@@ -40,7 +40,7 @@ do
 		   verbose=1
 		elif [ "$1" == "-h" -o "$1" == "--help" ]
 		then
-		   echo usage "$0 [-t <time>] [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in torque format>]"
+		   echo usage "$0 [-X] [-t <time>] [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in torque format>]"
            exit
 		fi		
 		shift
