@@ -4,6 +4,7 @@ mem=1gb
 user=`whoami`
 cpus=1
 verbose=0
+matlab=""
 
 while [ $# != "0" ];
 do
@@ -21,6 +22,9 @@ do
 		then
 		   shift
 		   mem=$1
+		elif [ "$1" == "-M" ]
+		then
+		   matlab=":matlab"
 		elif [ "$1" == "-n" ]
 		then
 		   shift
@@ -30,14 +34,16 @@ do
 		   verbose=1
 		elif [ "$1" == "-h" -o "$1" == "--help" ]
 		then
-		   echo usage "$0 [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in torque format>]"
+		   echo usage "$0 [-m <mem>] [--mem=<mem>] [-M for matlab] [-n <ncpus>] [<additional params in torque format>]"
            exit
+        else
+            args="$args $1"
 		fi		
-		shift
+        shift
 done
 
 if [ "$verbose" == "1" ];
 then
-    echo "qsub -I -l nodes=1:ppn=$cpus,walltime=72:00:00,mem=$mem,vmem=$mem,pmem=$mem -N QLOGIN -q active $@"
+    echo "qsub -I -l nodes=1:ppn=$cpus$matlab,walltime=72:00:00,mem=$mem,vmem=$mem,pmem=$mem -N QLOGIN -q active $args $@"
 fi
-qsub -I -l nodes=1:ppn=$cpus,walltime=72:00:00,mem=$mem,vmem=$mem,pmem=$mem -N QLOGIN -q active $@
+qsub -I -l nodes=1:ppn=$cpus$matlab,walltime=72:00:00,mem=$mem,vmem=$mem,pmem=$mem -N QLOGIN -q active $args $@
