@@ -1,5 +1,15 @@
 #!/bin/bash
 
+usage() {
+    echo "Usage:"
+    echo "  $0              print current cluster usage overview"
+    echo "  $0 <user>       print current cluster usage overview for specific <user>"
+    echo "  $0 -h/--help    print this message"    
+}
+
+[[ "$1" == "-h" ]] && usage && exit
+[[ "$1" == "--help" ]] && usage && exit
+
 if [ -z "$1" ]
 then
     /cbio/grlab/share/software/cluster_tools/q-status -alc

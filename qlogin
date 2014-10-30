@@ -4,48 +4,58 @@ mem=1gb
 user=`whoami`
 cpus=1
 verbose=0
+matlab=""
 time='72:00:00'
-x11forward=
 queue='active'
+name='QLOGIN'
 
 while [ $# != "0" ];
 do
 		if [ "${1:0:6}" == "--mem=" ]
 		then
-		   mem=${1:6}
+			mem=${1:6}
 		elif [ "$1" == "-t" ]
 		then
-		   shift
-		   time=$1
+			shift
+			time=$1
 		elif [ "$1" == "-m" ]
 		then
-		   shift
-		   mem=$1
+			shift
+			mem=$1
 		elif [ "$1" == "-q" ]
 		then
-		   shift
-		   queue=$1
+			shift
+			queue=$1
+		elif [ "$1" == "-M" ]
+		then
+			matlab=":matlab"
+		elif [ "$1" == "-N" ]
+		then
+			shift
+			name=$1
 		elif [ "$1" == "-X" ]
 		then
-		   shift
-		   x11forward="-X"
+			shift
+			x11forward="-X"
 		elif [ "$1" == "-n" ]
 		then
-		   shift
-		   cpus=$1
+			shift
+			cpus=$1
 		elif [ "$1" == "-v" ]
 		then
-		   verbose=1
+			verbose=1
 		elif [ "$1" == "-h" -o "$1" == "--help" ]
 		then
-		   echo usage "$0 [-X] [-t <time>] [-m <mem>] [--mem=<mem>] [-n <ncpus>] [-q queue] [<additional params in torque format>]"
-           exit
+			echo usage "$0 [-X] [-t <time>] [-m <mem>] [-n <ncpus>] [--mem=<mem>] [-M for matlab] [-N name] [-q queue] [<additional params in torque format>]"
+			exit
+        else
+            args="$args $1"
 		fi		
-		shift
+        shift
 done
 
 if [ "$verbose" == "1" ];
 then
-    echo "qsub -I $x11forward -l mem=$mem -l nodes=1:ppn=$cpus,walltime=$time -N QLOGIN -q $queue $@"
+    echo "qsub -I $x11forward -l nodes=1:ppn=$cpus$matlab,walltime=72:00:00,mem=$mem,vmem=$mem,pmem=$mem -N $name -q $queue $args $@"
 fi
-qsub -I $x11forward -l mem=$mem -l nodes=1:ppn=$cpus,walltime=$time -N QLOGIN -q $queue $@
+qsub -I $x11forward -l nodes=1:ppn=$cpus$matlab,walltime=72:00:00,mem=$mem,vmem=$mem,pmem=$mem -N $name -q $queue $args $@
