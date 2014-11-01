@@ -4,6 +4,9 @@ mem=1gb
 user=`whoami`
 cpus=1
 verbose=0
+matlab=""
+time='72:00:00'
+x11forward=""
 
 while [ $# != "0" ];
 do
@@ -17,10 +20,21 @@ do
 		if [ "${1:0:6}" == "--mem=" ]
 		then
 		   mem=${1:6}
+		elif [ "$1" == "-t" ]
+		then
+		   shift
+		   time=$1
 		elif [ "$1" == "-m" ]
 		then
 		   shift
 		   mem=$1
+		elif [ "$1" == "-M" ]
+		then
+		   matlab=":matlab"
+		elif [ "$1" == "-X" ]
+		then
+		   shift
+		   x11forward="-X"
 		elif [ "$1" == "-n" ]
 		then
 		   shift
@@ -31,14 +45,16 @@ do
 		elif [ "$1" == "-h" -o "$1" == "--help" ]
 		then
            echo -e "\nThis script is a wrapper for the submission of an interactive login job.\n" 
-		   echo "Usage: $0 [-m <mem>] [--mem=<mem>] [-n <ncpus>] [<additional params in torque format>]"
+		   echo "Usage: $0 [-X] [-t <time> ] [-m <mem>] [--mem=<mem>] [-M for matlab] [-n <ncpus>] [<additional params in torque format>]"
            exit
+        else
+            args="$args $1"
 		fi		
 		shift
 done
 
 if [ "$verbose" == "1" ];
 then
-    echo "qsub -I -l mem=$mem -l nodes=1:ppn=$cpus,walltime=72:00:00 -N QLOGIN -q active $@"
+    echo "qsub -I $x11forward -l nodes=1:ppn=$cpus$matlab,walltime=$time,mem=$mem,vmem=$mem,pmem=$mem -N QLOGIN -q active $args $@"
 fi
-qsub -I -l mem=$mem -l nodes=1:ppn=$cpus,walltime=72:00:00 -N QLOGIN -q active $@
+qsub -I $x11forward -l nodes=1:ppn=$cpus$matlab,walltime=$time,mem=$mem,vmem=$mem,pmem=$mem -N QLOGIN -q active $args $@
