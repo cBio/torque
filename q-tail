@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[[ -z "$1" ]] && echo "Usage: $0 <job-id>" && exit
+[[ -z "$1" ]] && echo -e "\nShow tail of job's output file.\n\nUsage: $0 <job-id>\n" && exit
 
 fname=`checkjob -v $1 | grep "OutputFile" | cut -f 3 -d ':' | sed -e "s/.qsubout//g"`
 echo $fname

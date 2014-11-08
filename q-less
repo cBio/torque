@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[[ -z "$1" ]] && echo -e "\nShow output file of job in less.\n\nUsage: $0 <jobid>\n" && exit
+
 fname=`checkjob -v $1 | grep "OutputFile" | cut -f 3 -d ':' | sed -e "s/.qsubout//g"`
 
 less $fname

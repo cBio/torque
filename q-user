@@ -6,6 +6,8 @@ set -e
 
 usage() {
     echo "$0 [<user> -n]"
+    echo "-n  show which nodes"
+    echo "use 'all' as user, to display information for all users"
     exit 1
 }
 
