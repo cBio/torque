@@ -56,6 +56,6 @@ done
 
 if [ "$verbose" == "1" ];
 then
-    echo "qsub -I $x11forward -l nodes=1:ppn=$cpus$matlab,walltime=72:00:00,mem=$mem,vmem=$mem,pmem=$mem -N $name -q $queue $args $@"
+    echo "qsub -I $x11forward -l nodes=1:ppn=$cpus$matlab,walltime=$time,mem=$mem,vmem=$mem,pmem=$mem -N $name -q $queue $args $@"
 fi
-qsub -I $x11forward -l nodes=1:ppn=$cpus$matlab,walltime=72:00:00,mem=$mem,vmem=$mem,pmem=$mem -N $name -q $queue $args $@
+qsub -I $x11forward -l nodes=1:ppn=$cpus$matlab,walltime=$time,mem=$mem,vmem=$mem,pmem=$mem -N $name -q $queue $args $@
