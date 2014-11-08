@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo -n "total amount of memory used: "
+echo $(qstat -a -t | grep -w R | grep gb | sed -e "s/ */ /g" | cut -f 8 -d ' ' | sed -e "s/gb//g" | tr '\n' '+')0 | bc
