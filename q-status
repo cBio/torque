@@ -448,7 +448,7 @@ sort_command_running=${sort_command%|*}
 sort_command_waiting=${sort_command#*|}
 
 # First the already running jobs.
-tmpfile=$(mktemp)
+tmpfile=$(mktemp --tmpdir=$HOME/tmp)
 eval "$squeue" > $tmpfile
 print_jobs "$tmpfile" $awk_command "Running"
 
