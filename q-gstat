@@ -214,6 +214,8 @@ prck 2
 c1="$c1$result"
 prck 3
 c1="$c1$result"
+prck 4
+c1="$c1$result"
 #prck abt1
 #c1="$c1$result"
 #prck abt2
