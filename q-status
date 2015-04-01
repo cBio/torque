@@ -452,8 +452,11 @@ tmpfile=$(mktemp --tmpdir=$HOME/tmp)
 eval "$squeue" > $tmpfile
 print_jobs "$tmpfile" $awk_command "Running"
 
-# Now the suspended jobs.
+# Now the held jobs.
 print_jobs "$tmpfile" $awk_command "Hold"
+
+# Now the suspended jobs.
+print_jobs "$tmpfile" $awk_command "Suspended"
 
 # Now the pending jobs.
 print_jobs "$tmpfile" $awk_command "Idle"
