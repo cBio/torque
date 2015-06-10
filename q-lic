@@ -6,7 +6,7 @@ if [ ! -z "$1" ]
 then
     echo $1 $(ssh $1 "ps -Af | grep -e \"\/MATLAB\" | grep -v grep | cut -f 1 -d ' ' | sort -u")
 else
-    for node in $(pbsnodes | grep -e "^gpu" -e " properties" | grep -B 1 matlab | grep -e "^gpu")
+    for node in $(pbsnodes | grep -e "^[cg]pu" -e " properties" | grep -B 1 matlab | grep -e "^[cg]pu")
     do
         echo $node $(ssh $node "ps -Af | grep -e \"\/MATLAB\" | grep -v grep | cut -f 1 -d ' ' | sort -u")
     done
